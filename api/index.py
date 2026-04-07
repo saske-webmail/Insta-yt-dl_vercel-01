@@ -5,216 +5,76 @@ from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 from datetime import datetime
 
+# ==========================================
+# 🚀 INITIALIZATION
+# ==========================================
 app = Flask(__name__)
 CORS(app)
 
-# ==========================================
-# ⚙️ CONFIGURATION & AUTH
-# ==========================================
+# Global constants
 MASTER_KEY = "sasuke@vpix"
 ADMIN_NAME = "@af.saskee"
 SERVER_START_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 TOTAL_HITS = 0
 
 # ==========================================
-# 🎨 UI: PREMIUM DARK DASHBOARD (300+ Lines Scope)
+# 🎨 PREMIUM DASHBOARD UI (HTML/CSS)
 # ==========================================
 CSS_STYLE = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-    
-    :root {
-        --bg: #050505;
-        --card: #0f0f0f;
-        --accent: #ff0000; /* YouTube Red */
-        --accent-glow: rgba(255, 0, 0, 0.2);
-        --text-main: #ffffff;
-        --text-dim: #a0a0a0;
-        --border: rgba(255, 255, 255, 0.08);
-    }
-
+    :root { --bg: #050505; --card: #0f0f0f; --accent: #ff0000; --text: #ffffff; --dim: #a0a0a0; --border: rgba(255,255,255,0.08); }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-    
-    body {
-        background-color: var(--bg);
-        color: var(--text-main);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        overflow-x: hidden;
-    }
-
-    .dashboard {
-        width: 100%;
-        max-width: 500px;
-        padding: 20px;
-        position: relative;
-    }
-
-    /* Background Glow Effects */
-    .glow {
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        background: var(--accent-glow);
-        filter: blur(120px);
-        z-index: -1;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .main-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 35px;
-        padding: 40px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 40px 100px rgba(0,0,0,0.8);
-    }
-
-    .logo-area i {
-        font-size: 50px;
-        color: var(--accent);
-        margin-bottom: 20px;
-        filter: drop-shadow(0 0 15px var(--accent));
-    }
-
-    h1 { font-size: 32px; font-weight: 800; margin-bottom: 5px; letter-spacing: -1px; }
-    .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 30px; }
-
-    .stats-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-
-    .stat-box {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid var(--border);
-        padding: 20px;
-        border-radius: 20px;
-        transition: 0.3s;
-    }
-
-    .stat-box:hover { border-color: var(--accent); transform: translateY(-5px); }
-    .stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-    .stat-value { font-size: 20px; font-weight: 700; display: block; margin-top: 5px; }
-
-    .info-list {
-        text-align: left;
-        background: rgba(0,0,0,0.2);
-        border-radius: 20px;
-        padding: 15px;
-        margin-bottom: 25px;
-    }
-
-    .info-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        font-size: 13px;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .info-item:last-child { border: none; }
-    .info-key { color: var(--text-dim); }
-
-    .btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 100%;
-        padding: 20px;
-        border-radius: 20px;
-        font-weight: 700;
-        text-decoration: none;
-        transition: 0.3s;
-        margin-bottom: 10px;
-    }
-
-    .btn-main { background: var(--accent); color: white; box-shadow: 0 10px 20px rgba(255,0,0,0.2); }
-    .btn-main:hover { opacity: 0.9; transform: scale(1.02); }
-    .btn-sub { background: transparent; color: white; border: 1px solid var(--border); }
-    .btn-sub:hover { background: rgba(255,255,255,0.05); }
-
-    .footer {
-        margin-top: 25px;
-        font-size: 12px;
-        color: var(--text-dim);
-    }
-
-    .badge {
-        background: rgba(255,0,0,0.1);
-        color: var(--accent);
-        padding: 4px 10px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 10px;
-    }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .main-card { background: var(--card); border: 1px solid var(--border); border-radius: 30px; padding: 40px; text-align: center; width: 90%; max-width: 450px; box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
+    .main-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,0,0,0.05) 0%, transparent 70%); z-index: 0; }
+    .content { position: relative; z-index: 1; }
+    i.fa-youtube { font-size: 60px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(255,0,0,0.4)); }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+    .s-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
+    .s-label { font-size: 10px; color: var(--dim); text-transform: uppercase; }
+    .s-val { font-size: 18px; font-weight: 700; display: block; margin-top: 5px; }
+    .btn { display: block; width: 100%; padding: 15px; border-radius: 15px; text-decoration: none; font-weight: 700; margin-top: 10px; transition: 0.3s; }
+    .btn-red { background: var(--accent); color: white; }
+    .btn-outline { border: 1px solid var(--border); color: white; font-size: 14px; }
+    .btn:hover { transform: translateY(-3px); opacity: 0.9; }
+    .footer { margin-top: 30px; font-size: 11px; color: var(--dim); }
 </style>
 """
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasuke YT Downloader Pro</title>
+    <title>Sasuke YT V5 | Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {{ css|safe }}
 </head>
 <body>
-    <div class="glow"></div>
-    <div class="dashboard">
-        <div class="main-card">
-            <div class="logo-area">
-                <i class="fa-brands fa-youtube"></i>
-            </div>
-            <h1>Sasuke YT V5</h1>
-            <p class="subtitle">Ultimate High-Quality Media Extractor</p>
-
-            <div class="stats-container">
-                <div class="stat-box">
-                    <span class="stat-label">System Status</span>
-                    <span class="stat-value" style="color: #00ff88;">ONLINE</span>
+    <div class="main-card">
+        <div class="content">
+            <i class="fa-brands fa-youtube"></i>
+            <h1>SASUKE YT V5</h1>
+            <p style="color:var(--dim); font-size: 14px;">Premium 2026 Engine Active</p>
+            
+            <div class="stats">
+                <div class="s-box">
+                    <span class="s-label">Status</span>
+                    <span class="s-val" style="color:#00ff88;">ONLINE</span>
                 </div>
-                <div class="stat-box">
-                    <span class="stat-label">Total API Hits</span>
-                    <span class="stat-value">{{ hits }}</span>
+                <div class="s-box">
+                    <span class="s-label">Total Hits</span>
+                    <span class="s-val">{{ hits }}</span>
                 </div>
             </div>
 
-            <div class="info-list">
-                <div class="info-item">
-                    <span class="info-key">Engine Version</span>
-                    <span class="info-val">yt-dlp (Stable)</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-key">Authentication</span>
-                    <span class="info-val">Cookies Active <i class="fa-solid fa-cookie-bite"></i></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-key">Server Uptime</span>
-                    <span class="info-val">100% Guaranteed</span>
-                </div>
-            </div>
-
-            <a href="https://t.me/ah_saske" class="btn btn-main">
-                <i class="fa-brands fa-telegram"></i> JOIN CHANNEL
-            </a>
-            <a href="https://instagram.com/af.saskee" class="btn btn-sub">
-                <i class="fa-brands fa-instagram"></i> DEVELOPER
-            </a>
+            <a href="#" class="btn btn-red">API IS ACTIVE</a>
+            <a href="https://instagram.com/af.saskee" class="btn btn-outline">Developer: {{ admin }}</a>
 
             <div class="footer">
-                <p>Built with ❤️ by <span style="color:white;">Sasuke</span></p>
-                <p style="font-size: 10px; margin-top:5px; opacity:0.5;">Uptime: {{ uptime }}</p>
+                <p>Server Started: {{ uptime }}</p>
+                <p style="margin-top:5px; opacity:0.5;">Powered by Sasuke Cloud Engine</p>
             </div>
         </div>
     </div>
@@ -223,18 +83,83 @@ HTML_TEMPLATE = """
 """
 
 # ==========================================
-# 🚀 CORE EXTRACTOR LOGIC
+# 🛠️ CORE EXTRACTOR LOGIC
 # ==========================================
 
 @app.route('/')
-def index():
-    return render_template_string(HTML_TEMPLATE, css=CSS_STYLE, hits=TOTAL_HITS, uptime=SERVER_START_TIME)
+def home():
+    return render_template_string(HTML_TEMPLATE, css=CSS_STYLE, hits=TOTAL_HITS, uptime=SERVER_START_TIME, admin=ADMIN_NAME)
 
 @app.route('/api/v5/sasuke/yt', methods=['GET'])
-def youtube_downloader():
+def youtube_api():
     global TOTAL_HITS
-    key = request.args.get('key')
     url = request.args.get('url')
+    key = request.args.get('key')
+
+    # Simple Key Check (Optional)
+    if key != MASTER_KEY:
+        return jsonify({"status": "failed", "msg": "Invalid Master Key"}), 403
 
     if not url:
-        return jsonify({"status": "failed", "msg": "No
+        return jsonify({"status": "failed", "msg": "No URL provided"}), 400
+
+    try:
+        TOTAL_HITS += 1
+        
+        # Path to cookies.txt (Must be in root folder on GitHub)
+        cookie_path = os.path.join(os.getcwd(), 'cookies.txt')
+
+        ydl_opts = {
+            'format': 'best',
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': cookie_path if os.path.exists(cookie_path) else None,
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # Format extraction
+            formats_data = []
+            for f in info.get('formats', []):
+                if f.get('vcodec') != 'none' and f.get('url'):
+                    formats_data.append({
+                        "quality": f.get('resolution') or f.get('format_note'),
+                        "ext": f.get('ext'),
+                        "size": f"{round(f.get('filesize', 0) / 1048576, 2)} MB" if f.get('filesize') else "N/A",
+                        "url": f.get('url')
+                    })
+
+            return jsonify({
+                "status": "success",
+                "developer": ADMIN_NAME,
+                "metadata": {
+                    "title": info.get('title'),
+                    "thumbnail": info.get('thumbnail'),
+                    "channel": info.get('uploader'),
+                    "duration": f"{info.get('duration')}s",
+                    "views": info.get('view_count')
+                },
+                "download": {
+                    "best_link": info.get('url'),
+                    "all_qualities": formats_data[:8] # Send top 8 formats
+                }
+            }), 200
+
+    except Exception as e:
+        return jsonify({"status": "failed", "error": str(e)}), 500
+
+# ==========================================
+# 🚀 VERCEL HANDLER (CRITICAL FIX)
+# ==========================================
+
+# Vercel looks for 'app' at the top level
+app = app
+
+# Ensure external handler support
+def handler(environ, start_response):
+    return app(environ, start_response)
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
