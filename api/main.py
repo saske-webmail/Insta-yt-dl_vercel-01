@@ -1,4 +1,4 @@
- import os
+import os
 import secrets
 import string
 from fastapi import FastAPI, Request, HTTPException
