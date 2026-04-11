@@ -109,7 +109,7 @@ async def chat(request: Request, prompt: str, key: str):
 
         return JSONResponse(content={
             "status": "success",
-            "model": "llama-3.3-70b",
+            "model": "AI-sasuke v1",
             "data": {
                 "response": formatted_response,
                 "usage": all_active_keys[key]["total_req"]
