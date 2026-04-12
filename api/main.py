@@ -153,7 +153,7 @@ async def chat_engine(
                     "tier": app.KEY_DATABASE[key]["tier"]
                 }
             }
-        )
+       )
 
     except Exception as e:
         logger.error(f"Chat Error: {str(e)}")
